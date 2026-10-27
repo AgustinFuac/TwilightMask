@@ -6,8 +6,6 @@
 // - Se llega pulsando Izquierda desde la primera celda de la fila de ropa. Mientras
 //   está seleccionado, usamos el cursor NATIVO del juego (le "prestamos" nuestra
 //   celda), no dibujamos nada a mano. A activa/desactiva la máscara.
-//
-// SIN COMPILAR NI PROBAR. Suposiciones marcadas con [VERIFICAR].
 
 #include "mask_collect_slot.hpp"
 #include "mask_equip.hpp"
@@ -18,9 +16,9 @@
 #include "mods/svc/resource.h"
 
 #include "d/d_com_inf_game.h"
-#include "d/d_menu_collect.h"   // [VERIFICAR] dMenu_Collect2D_c
-#include "d/d_menu_window.h"    // [VERIFICAR] dMw_A_TRIGGER(), dMw_LEFT_TRIGGER()...
-#include "d/d_pane_class.h"     // [VERIFICAR] CPaneMgr
+#include "d/d_menu_collect.h"   //  dMenu_Collect2D_c
+#include "d/d_menu_window.h"    //  dMw_A_TRIGGER(), dMw_LEFT_TRIGGER()...
+#include "d/d_pane_class.h"     //  CPaneMgr
 #include "m_Do/m_Do_ext.h"
 #include "m_Do/m_Do_controller_pad.h"
 
@@ -36,6 +34,8 @@
 
 #include <cstdio>
 #include <cstring>
+#include <cstdlib>
+#include <new>
 
 namespace dawnlight {
 namespace {
@@ -117,7 +117,7 @@ namespace {
     const u64 kIdFrame = MULTI_CHAR('mmslot_f');
 
     // ============================================================
-    // Icono (ResTIMG con alfa activado, como hace Fimmel)
+    // Icono (ResTIMG con alfa activado)
     // ============================================================
 
     const ResTIMG* get_icon_image() {
@@ -132,7 +132,17 @@ namespace {
             svc_resource->free(mod_ctx, &s_iconBuf);
             return nullptr;
         }
+#ifdef _WIN32
         s_iconCopy = static_cast<u8*>(_aligned_malloc(size, 32));
+#else
+        void* ptr = nullptr;
+        if (posix_memalign(&ptr, 32, size) == 0) {
+            s_iconCopy = static_cast<u8*>(ptr);
+        }
+        else {
+            s_iconCopy = nullptr;
+        }
+#endif
         if (s_iconCopy) {
             std::memcpy(s_iconCopy, s_iconBuf.data, size);
             s_iconCopy[1] = 1;   // ResTIMG::alphaEnabled
@@ -143,7 +153,11 @@ namespace {
 
     void release_icon() {
         if (s_iconCopy) {
+#ifdef _WIN32
             _aligned_free(s_iconCopy);
+#else
+            free(s_iconCopy);
+#endif
             s_iconCopy = nullptr;
         }
     }
