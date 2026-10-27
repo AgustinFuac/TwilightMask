@@ -1,0 +1,9 @@
+{
+  "id": "com.agustinfuac.majorasmask",
+  "name": "Majora's Mask",
+  "version": "1.0.0",
+  "author": "AgustinFuac",
+  "description": "are you sure you want to use the power of Majora",
+  "icon": "res/icon.png",
+  "banner": "res/banner.png"
+}
