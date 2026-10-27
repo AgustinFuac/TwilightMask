@@ -30,7 +30,9 @@
 #include "m_Do/m_Do_audio.h"
 #include "Z2AudioLib/Z2SeMgr.h"
 
+#ifdef _WIN32
 #include <malloc.h>   // _aligned_malloc / _aligned_free (MSVC)
+#endif
 
 #include <cstdio>
 #include <cstring>
